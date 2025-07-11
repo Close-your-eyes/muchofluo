@@ -1,0 +1,58 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# muchofluo
+
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+A small repository for spectral data of happy little fluorochromes.
+
+```{r spectrum, echo = FALSE}
+library(ggplot2)
+spec <- vroom::vroom(gzfile(system.file("extdata", "spectra.tsv.gz", package = "muchofluo")), show_col_types = F) |> dplyr::filter(fluorochrome == "PE-Dazzle594") |> dplyr::filter(source == "th")
+maxes <- vroom::vroom(system.file("extdata", "em_ex_maxima.tsv", package = "muchofluo"), show_col_types = F)
+pp <- ggplot(spec |>
+         tidyr::pivot_longer(cols = c(em, ex), names_to = "type", values_to = "value") |>
+         tidyr::drop_na(), aes(x = nm, y = value)) +
+  geom_line(aes(linetype = type), color = "white") + # colrr::col_pal("material")[1]
+  colrr::theme_material(bg_color = "#0D1117") +
+  theme(legend.position.inside = c(0.95,0.9), legend.key.size = ggplot2::unit(0, "pt"),
+        legend.key.spacing.y = ggplot2::unit(10, "pt")) +
+  labs(linetype = NULL, y = "norm intensity [%]", title = "PE-Dazzle594") +
+  geom_segment(data = dplyr::filter(maxes, fluorochrome == "PE-Dazzle594") |> dplyr::filter(source == "th"), aes(x = nm, y = 0, yend = norm_intensity, linetype = type), color = "white") +
+  guides(linetype = guide_legend(position = "inside", label.position = "bottom"))
+```
+
+```{r, echo=FALSE}
+pp
+```
+
+See plots of excitation and emission spectra in inst/extdata/spectra_images.
+
+All raw data for those are in inst/extdata/spectra.tsv.gz and inst/extdata/em_ex_maxima.tsv.
+
+```{r, echo=FALSE}
+print(knitr::kable(spec |> tidyr::drop_na() |> dplyr::slice_head(n = 10)))
+print(knitr::kable(dplyr::filter(maxes, fluorochrome == "PE-Dazzle594")))
+
+#dplyr::filter(maxes, fluorochrome == "PE-Dazzle594")# |> gt::gt()
+```
+
+Peaks were detected by algorithm. This may either be oversensitive and detect too many of them or miss some. Plots were checked and only very few minor peaks are not detected.
+In very few spectra lowest emission peak is below lowest excitation which should not be according to [Stokes shift](https://en.wikipedia.org/wiki/Stokes_shift).
+inst/extdata/fluos.tsv is a table of all fluorochromes and a note whether a dye is used in flow cytometry.
+
+
+
