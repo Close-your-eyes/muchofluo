@@ -1,81 +1,96 @@
-#' Query the
+#' Query fluorochrome names with string matching
 #'
-#' @param query
-#' @param multimatch
-#' @param ref
+#' This may be used to harmonize different spellings of fluorochromes.
+#' The query is matched against full names and short forms. Anything but
+#' letters and numbers are ignored, case is irrelevant. Matching can be very
+#' sensitive when match_cutoff is increased.
 #'
-#' @return
+#' @param query vector of query strings
+#' @param multimatch how to handle multiple matches, return all of them
+#' or the best only
+#' @param ref reference table with synonymes and names to return
+#' @param match_cutoff min match score to return results, smaller value =
+#' stricter
+#'
+#' @return vector of fluorochrome names
 #' @export
 #'
 #' @examples
+#' query <- c("abc", "pr", "0", "pecy5", "pecy")
+#' query_fluo(query)
 query_fluo <- function(query,
                        multimatch = c("best", "all"),
+                       match_cutoff = 0.5,
                        ref = system.file("extdata", "fluo_lookup.tsv", package = "muchofluo")) {
 
   # oversensitive matching, but anayway. e.g.: pure
   multimatch <- rlang::arg_match(multimatch)
 
-  ref <- vroom::vroom(ref) # silence
-  lookupvec <- setNames(ref$fluorochrome, ref$syn)
+  ref <- vroom::vroom(ref, col_types = "cc", progress = F) # silence
+  lookupvec <- stats::setNames(ref$fluorochrome, ref$syn)
 
-  preprocess <- function(x) {
-    x <- tolower(gsub("[^[:alnum:]]", "", x))
-    return(x)
-  }
   proc_query <- preprocess(query)
-  if (nchar(proc_query) == 0) {
-    return(NULL)
-  }
   origsyn <- ref$syn
   #ref$syn <- preprocess(fluoro_names)
 
-
-  ## check for immediate hit
-  hit <- which(adist(proc_query, ref$syn)[1,] == 0)
-  if (length(hit) == 1) {
-    return(unname(lookupvec[ref$syn[hit]]))
-  }
-
-  # Numeric‐substring filter
-  nums <- str_extract_all(proc_query, "\\d+")[[1]]
-  if (length(nums) > 0) {
-    longest    <- nums[which.max(nchar(nums))]
-    # only finds longest not preceded or followed by another digit
-    pattern  <- paste0("(?<!\\d)", longest, "(?!\\d)")
-    has_num   <- str_detect(ref$syn, regex(pattern))
-    if (any(has_num)) {
-      candidate_idx <- which(has_num)
-      # remove that numeric run from both proc_query & candidates
-      proc_query <- str_squish(str_replace_all(proc_query, fixed(longest), ""))
-      ref$syn[candidate_idx] <- str_squish(str_replace_all(ref$syn[candidate_idx], fixed(longest), ""))
-    } else {
-      candidate_idx <- seq_along(ref$syn)
+  out <- purrr::map2(stats::setNames(query, query), proc_query, function(query, proc_query) {
+    if (nchar(proc_query) == 0) {
+      return(NULL)
     }
-  } else {
-    candidate_idx <- seq_along(ref$syn)
-  }
 
-  candidates <- origsyn[candidate_idx]
-  proc_cand  <- ref$syn[candidate_idx]
-
-  proc_cand_idx <- which(match_subseq_scan(proc_query, proc_cand))
-  matches <- unique(unname(lookupvec[candidates[proc_cand_idx]]))
-  if (length(matches) > 1) {
-    message("multiple matches for ", query, ": ", paste(matches, collapse = "; "), "\n")
-    # options: return all or lowest lv-dist
-    if (multimatch == "best") {
-      return(matches[which.min(adist(query, matches)[1,])])
-    } else {
-      return(matches)
+    ## check for immediate hit
+    hit <- which(utils::adist(proc_query, ref$syn)[1,] == 0)
+    if (length(hit) == 1) {
+      return(unname(lookupvec[ref$syn[hit]]))
     }
-  } else if (length(matches) == 1) {
-    return(matches)
-  } else {
-    message(query, ": no match")
-    return(NULL)
-  }
+
+    # Numeric‐substring filter
+    nums <- stringr::str_extract_all(proc_query, "\\d+")[[1]]
+    if (length(nums) > 0) {
+      longest <- nums[which.max(nchar(nums))]
+      digits <- strsplit(as.character(longest), "")[[1]]
+      has_all_digits <- purrr::map_lgl(strsplit(ref$syn,""), ~all(digits %in% .x))
+      if (any(has_all_digits)) {
+        ref <- ref[which(has_all_digits),]
+      }
+    }
+
+    # pre-filter
+    idx <- unique(c(which(match_subseq_scan(proc_query, ref$syn)),
+                    which(purrr::map_lgl(ref$syn, match_subseq_scan, refs = proc_query)),
+                    which(utils::adist(proc_query, ref$syn)[1,] <= 3)))
+    ref <- ref[idx,]
+    matches <- unname(lookupvec[ref$syn])
+
+    # look for best match in pre filter
+    if (length(unique(matches)) > 1 && multimatch == "all") {
+      return(unique(matches))
+    } else if ((length(unique(matches)) > 1 && multimatch == "best") || length(unique(matches)) == 1) {
+      res <- stringdist::stringdist(proc_query, ref$syn) #utils::adist(proc_query, ref$syn)[1,]
+      resrel <- res/pmax(nchar(proc_query), nchar(ref$syn))
+      inds <- which(resrel < match_cutoff)
+
+      if (!length(inds)) {
+        message(query, ": no match below threshold.")
+        return(NULL)
+      }
+      matches <- matches[inds]
+      if (length(unique(matches)) > 1) {
+        message("multiple matches for ", query, ": ", paste(unique(matches), collapse = "; "), "\n")
+      }
+      return(matches[which.min(resrel[inds])])
+    } else {
+      message(query, ": no match")
+      return(NULL)
+    }
+  })
 }
 
+
+preprocess <- function(x) {
+  x <- tolower(gsub("[^[:alnum:]]", "", x))
+  return(x)
+}
 
 match_subseq_scan <- function(query, refs) {
   # helper: test one ref string
@@ -93,3 +108,5 @@ match_subseq_scan <- function(query, refs) {
   }
   return(vapply(refs, single_check, logical(1), q = query))
 }
+
+

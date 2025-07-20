@@ -45,14 +45,14 @@ All raw data for those are in inst/extdata/spectra.tsv.gz and inst/extdata/em_ex
 
 ```{r, echo=FALSE}
 print(knitr::kable(spec |> tidyr::drop_na() |> dplyr::slice_head(n = 10)))
-print(knitr::kable(dplyr::filter(maxes, fluorochrome == "PE-Dazzle594")))
+print(knitr::kable(dplyr::filter(maxes, fluorochrome == "PE-Dazzle594" & source == "th")))
 
 #dplyr::filter(maxes, fluorochrome == "PE-Dazzle594")# |> gt::gt()
 ```
 
 Peaks were detected by algorithm. This may either be oversensitive and detect too many of them or miss some. Plots were checked and only very few minor peaks are not detected.
 In very few spectra lowest emission peak is below lowest excitation which should not be according to [Stokes shift](https://en.wikipedia.org/wiki/Stokes_shift).
-inst/extdata/fluos.tsv is a table of all fluorochromes and a note whether a dye is used in flow cytometry.
+inst/extdata/fluos.tsv is a table of all fluorochromes with some accessory info.
 
 
 

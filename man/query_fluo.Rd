@@ -2,11 +2,12 @@
 % Please edit documentation in R/query_fluo.R
 \name{query_fluo}
 \alias{query_fluo}
-\title{Title}
+\title{Query the}
 \usage{
 query_fluo(
   query,
   multimatch = c("best", "all"),
+  bestmatch_cutoff = 0.5,
   ref = system.file("extdata", "fluo_lookup.tsv", package = "muchofluo")
 )
 }
@@ -14,5 +15,9 @@ query_fluo(
 \item{ref}{}
 }
 \description{
-Title
+Query the
+}
+\examples{
+query <- c("abc", "pr", "0", "pecy5", "pecy")
+multimatch <- "best"
 }
