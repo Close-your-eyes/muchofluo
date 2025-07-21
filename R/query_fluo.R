@@ -86,7 +86,6 @@ query_fluo <- function(query,
   })
 }
 
-
 preprocess <- function(x) {
   x <- tolower(gsub("[^[:alnum:]]", "", x))
   return(x)
