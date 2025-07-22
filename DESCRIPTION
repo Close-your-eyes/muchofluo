@@ -17,4 +17,12 @@ Imports:
     purrr,
     rlang,
     stringr,
-    vroom
+    vroom,
+    stringdist,
+    ggplot2,
+    dplyr,
+    devtools,
+    tidyr
+Suggests:
+    colrr,
+    brathering

@@ -2,22 +2,36 @@
 % Please edit documentation in R/query_fluo.R
 \name{query_fluo}
 \alias{query_fluo}
-\title{Query the}
+\title{Query fluorochrome names with string matching}
 \usage{
 query_fluo(
   query,
   multimatch = c("best", "all"),
-  bestmatch_cutoff = 0.5,
+  match_cutoff = 0.5,
   ref = system.file("extdata", "fluo_lookup.tsv", package = "muchofluo")
 )
 }
 \arguments{
-\item{ref}{}
+\item{query}{vector of query strings}
+
+\item{multimatch}{how to handle multiple matches, return all of them
+or the best only}
+
+\item{match_cutoff}{min match score to return results, smaller value =
+stricter}
+
+\item{ref}{reference table with synonymes and names to return}
+}
+\value{
+vector of fluorochrome names
 }
 \description{
-Query the
+This may be used to harmonize different spellings of fluorochromes.
+The query is matched against full names and short forms. Anything but
+letters and numbers are ignored, case is irrelevant. Matching can be very
+sensitive when match_cutoff is increased.
 }
 \examples{
 query <- c("abc", "pr", "0", "pecy5", "pecy")
-multimatch <- "best"
+query_fluo(query)
 }
