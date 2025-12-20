@@ -38,7 +38,7 @@ make_spectra_plots <- function(spectra_df = system.file("extdata", "spectra.tsv.
   if (is.character(maxima_df) && file.exists(maxima_df)) {
     maxima_df <- vroom::vroom(maxima_df, show_col_types = F, progress = F)
   }
-  if (is.character(maxima_df) && file.exists(maxima_df)) {
+  if (is.character(spectra_df) && file.exists(spectra_df)) {
     spectra_df <- vroom::vroom(spectra_df, show_col_types = F, progress = F)
   }
 
