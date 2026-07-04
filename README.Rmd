@@ -19,13 +19,17 @@ knitr::opts_chunk$set(
 
 A small repository for spectral data of happy little fluorochromes.
 
+Install packages manually before use:
+pak::pak('close-your-eyes/colrr')
+pak::pak('close-your-eyes/brathering')
+
 ```{r spectrum, echo = FALSE}
 library(ggplot2)
 spec <- vroom::vroom(gzfile(system.file("extdata", "spectra.tsv.gz", package = "muchofluo")), show_col_types = F) |> dplyr::filter(fluorochrome == "PE-Dazzle594") |> dplyr::filter(source == "th")
 maxes <- vroom::vroom(system.file("extdata", "em_ex_maxima.tsv", package = "muchofluo"), show_col_types = F)
 pp <- ggplot(spec |>
-         tidyr::pivot_longer(cols = c(em, ex), names_to = "type", values_to = "value") |>
-         tidyr::drop_na(), aes(x = nm, y = value)) +
+               tidyr::pivot_longer(cols = c(em, ex), names_to = "type", values_to = "value") |>
+               tidyr::drop_na(), aes(x = nm, y = value)) +
   geom_line(aes(linetype = type), color = "white") + # colrr::col_pal("material")[1]
   colrr::theme_material(bg_color = "#0D1117") +
   theme(legend.position.inside = c(0.95,0.9), legend.key.size = ggplot2::unit(0, "pt"),
@@ -55,4 +59,30 @@ In very few spectra lowest emission peak is below lowest excitation which should
 inst/extdata/fluos.tsv is a table of all fluorochromes with some accessory info.
 
 
-
+# Function to plot spectra
+```{r, echo=T}
+library(muchofluo)
+# select fluorochromes to be plotted together
+data <- get_spectral_data(fluos = c("FITC", "PE-cy7"))
+# default plot; color histograms by maximum wavelength (em or ex)
+plot_spectra(data$bd)[[1]]
+# points, no lines
+plot_spectra(data$bd, geoms = "point")[[1]]
+# omit vertical max lines
+plot_spectra(data$bd, geoms = "point", plot_max = F)[[1]]
+# points and lines
+plot_spectra(data$bd, geoms = c("point", "line"), plot_max = F)[[1]]
+# color each segment by respective wavelength
+plot_spectra(spec_data = data$bd, col_pal = "wavelength", geoms = c("point", "line"), plot_max = F)[[1]]
+# add shade fill according to max wavelength
+plot_spectra(spec_data = data$bd, col_pal = "wavelength_max", shade_type = "ex")[[1]]
+plot_spectra(spec_data = data$bd, col_pal = "wavelength_max", shade_type = c("ex", "em"))[[1]]
+# add shade fill according to exact wavelength
+plot_spectra(spec_data = data$bd, col_pal = "wavelength", shade_type = "ex")[[1]]
+# use custom coloring
+plot_spectra(data$bd, col_pal = "hue")[[1]]
+plot_spectra(data$bd, col_pal = "custom")[[1]]
+plot_spectra(data$bd, col_pal = c("hotpink", "firebrick", "forestgreen", "blue"))[[1]]
+# plot all local maxima as legend
+plot_spectra(data$bd, col_pal = "wavelength_localmax")[[1]]
+```

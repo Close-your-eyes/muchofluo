@@ -2,22 +2,28 @@
 % Please edit documentation in R/get_spectral_data.R
 \name{get_spectral_data}
 \alias{get_spectral_data}
-\title{Title}
+\title{Get spectral data from internal package data}
 \usage{
 get_spectral_data(
   fluos,
   spectra_df = vroom::vroom(system.file("extdata", "spectra.tsv.gz", package =
     "muchofluo"), show_col_types = F, progress = F),
   maxima_df = vroom::vroom(system.file("extdata", "em_ex_maxima.tsv", package =
-    "muchofluo"), show_col_types = F, progress = F),
-  progress = F
+    "muchofluo"), show_col_types = F, progress = F)
 )
 }
 \arguments{
-\item{progress}{}
+\item{fluos}{fluorochrome names, will be matched by query_fluo}
+
+\item{spectra_df}{data frame with spectral data}
+
+\item{maxima_df}{data frame with data on max emission and excitation}
+}
+\value{
+list of df
 }
 \description{
-Title
+Get spectral data from internal package data
 }
 \examples{
 out <- get_spectral_data(c("A647", "FITC"))

@@ -2,17 +2,71 @@
 % Please edit documentation in R/plot_spectra.R
 \name{plot_spectra}
 \alias{plot_spectra}
-\title{Title}
+\title{Plot spectral data}
 \usage{
-plot_spectra(spec_data)
+plot_spectra(
+  spec_data,
+  type = c("em", "ex"),
+  col_pal = "wavelength_max",
+  col_em_ex = T,
+  shade_type = c("none"),
+  shade_type_args = list(alpha = 0.3, show.legend = F),
+  geoms = "line",
+  plot_max = T,
+  theme = colrr::theme_material(text_fun = ggplot2::element_text, bg_color = "grey40")
+)
 }
 \arguments{
-\item{spec_data}{}
+\item{spec_data}{data from get_spectral_data fun, list or df}
+
+\item{type}{what to plot em and/or ex}
+
+\item{col_pal}{how to color spectra; (i) wavelength_max, (ii) wavelength_localmax,
+(iii) wavelength, (iv) palette name from colrr::col_pal, (v) color vector}
+
+\item{col_em_ex}{color excitation and emission of one fluorochrome differently
+(T) or both according max(em) (F)}
+
+\item{shade_type}{what to shade: none, ex and/or em}
+
+\item{shade_type_args}{args to geom_ribbon}
+
+\item{geoms}{what to plot, line and/or point}
+
+\item{plot_max}{plot vertical lines at local maxima}
+
+\item{theme}{ggplot theme}
+}
+\value{
+ggplot
 }
 \description{
-Title
+Make ggplot with spectral data.
 }
 \examples{
-out <- get_spectral_data(c("A647", "FITC"))
-plots <- plot_spectra(out)
+# select fluorochromes to be plotted together
+data <- get_spectral_data(fluos = c("FITC", "PE-cy7"))
+# default plot; color histograms by maximum wavelength (em or ex)
+plot_spectra(data$bd)[[1]]
+# points, no lines
+plot_spectra(data$bd, geoms = "point")[[1]]
+# omit vertical max lines
+plot_spectra(data$bd, geoms = "point", plot_max = F)[[1]]
+# points and lines
+plot_spectra(data$bd, geoms = c("point", "line"), plot_max = F)[[1]]
+# color each segment by respective wavelength
+plot_spectra(spec_data = data$bd, col_pal = "wavelength", geoms = c("point", "line"), plot_max = F)[[1]]
+# add shade fill according to max wavelength
+plot_spectra(spec_data = data$bd, col_pal = "wavelength_max", shade_type = "ex")[[1]]
+plot_spectra(spec_data = data$bd, col_pal = "wavelength_max", shade_type = c("ex", "em"))[[1]]
+# add shade fill according to exact wavelength
+plot_spectra(spec_data = data$bd, col_pal = "wavelength", shade_type = "ex")[[1]]
+# use custom coloring
+plot_spectra(data$bd, col_pal = "hue")[[1]]
+plot_spectra(data$bd, col_pal = "custom")[[1]]
+plot_spectra(data$bd, col_pal = c("hotpink", "firebrick", "forestgreen", "blue"))[[1]]
+# plot all local maxima as legend
+plot_spectra(data$bd, col_pal = "wavelength_localmax")[[1]]
+# same color for ex and em
+plot_spectra(data$bd, col_pal = "hue", col_em_ex = F)[[1]]
 }

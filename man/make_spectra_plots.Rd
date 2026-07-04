@@ -14,10 +14,11 @@ make_spectra_plots(
 )
 }
 \arguments{
-\item{spectra_df}{data frame of path to file on disk with spectral data}
+\item{spectra_df}{data frame or path to file on disk with spectral data;
+file from disk is read with vroom::vroom}
 
 \item{maxima_df}{data frame of path to file on disk with maxima/peaks of
-emission and excitation}
+emission and excitation; file from disk is read with vroom::vroom}
 
 \item{path}{path to folder where to save plots to}
 
@@ -31,7 +32,7 @@ emission and excitation}
 nothing, files on disk created
 }
 \description{
-Make ggplots of emission and excitation spectra
+Create single files on disk for every flurochrome in spectra_df and maxima_df.
 }
 \examples{
 \dontrun{

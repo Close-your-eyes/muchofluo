@@ -4,9 +4,13 @@
 # muchofluo
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 A small repository for spectral data of happy little fluorochromes.
+
+Install packages manually before use: pak::pak(‘close-your-eyes/colrr’)
+pak::pak(‘close-your-eyes/brathering’)
 
 ![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
@@ -46,3 +50,91 @@ peak is below lowest excitation which should not be according to [Stokes
 shift](https://en.wikipedia.org/wiki/Stokes_shift).
 inst/extdata/fluos.tsv is a table of all fluorochromes with some
 accessory info.
+
+# Function to plot spectra
+
+``` r
+library(muchofluo)
+# select fluorochromes to be plotted together
+data <- get_spectral_data(fluos = c("FITC", "PE-cy7"))
+# default plot; color histograms by maximum wavelength (em or ex)
+plot_spectra(data$bd)[[1]]
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+# points, no lines
+plot_spectra(data$bd, geoms = "point")[[1]]
+#> Warning: Duplicated `override.aes` is ignored.
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+``` r
+# omit vertical max lines
+plot_spectra(data$bd, geoms = "point", plot_max = F)[[1]]
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
+
+``` r
+# points and lines
+plot_spectra(data$bd, geoms = c("point", "line"), plot_max = F)[[1]]
+#> Warning: Duplicated `override.aes` is ignored.
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-4.png)<!-- -->
+
+``` r
+# color each segment by respective wavelength
+plot_spectra(spec_data = data$bd, col_pal = "wavelength", geoms = c("point", "line"), plot_max = F)[[1]]
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-5.png)<!-- -->
+
+``` r
+# add shade fill according to max wavelength
+plot_spectra(spec_data = data$bd, col_pal = "wavelength_max", shade_type = "ex")[[1]]
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-6.png)<!-- -->
+
+``` r
+plot_spectra(spec_data = data$bd, col_pal = "wavelength_max", shade_type = c("ex", "em"))[[1]]
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-7.png)<!-- -->
+
+``` r
+# add shade fill according to exact wavelength
+plot_spectra(spec_data = data$bd, col_pal = "wavelength", shade_type = "ex")[[1]]
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-8.png)<!-- -->
+
+``` r
+# use custom coloring
+plot_spectra(data$bd, col_pal = "hue")[[1]]
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-9.png)<!-- -->
+
+``` r
+plot_spectra(data$bd, col_pal = "custom")[[1]]
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-10.png)<!-- -->
+
+``` r
+plot_spectra(data$bd, col_pal = c("hotpink", "firebrick", "forestgreen", "blue"))[[1]]
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-11.png)<!-- -->
+
+``` r
+# plot all local maxima as legend
+plot_spectra(data$bd, col_pal = "wavelength_localmax")[[1]]
+```
+
+![](README_files/figure-gfm/unnamed-chunk-4-12.png)<!-- -->
