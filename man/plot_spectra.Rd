@@ -8,11 +8,11 @@ plot_spectra(
   spec_data,
   type = c("em", "ex"),
   col_pal = "wavelength_max",
-  col_em_ex = T,
+  col_em_ex = TRUE,
   shade_type = c("none"),
-  shade_type_args = list(alpha = 0.3, show.legend = F),
+  shade_type_args = list(alpha = 0.3, show.legend = FALSE),
   geoms = "line",
-  plot_max = T,
+  plot_max = TRUE,
   theme = colrr::theme_material(text_fun = ggplot2::element_text, bg_color = "grey40")
 )
 }
@@ -25,7 +25,7 @@ plot_spectra(
 (iii) wavelength, (iv) palette name from colrr::col_pal, (v) color vector}
 
 \item{col_em_ex}{color excitation and emission of one fluorochrome differently
-(T) or both according max(em) (F)}
+(TRUE) or both according max(em) (FALSE)}
 
 \item{shade_type}{what to shade: none, ex and/or em}
 
@@ -51,11 +51,11 @@ plot_spectra(data$bd)[[1]]
 # points, no lines
 plot_spectra(data$bd, geoms = "point")[[1]]
 # omit vertical max lines
-plot_spectra(data$bd, geoms = "point", plot_max = F)[[1]]
+plot_spectra(data$bd, geoms = "point", plot_max = FALSE)[[1]]
 # points and lines
-plot_spectra(data$bd, geoms = c("point", "line"), plot_max = F)[[1]]
+plot_spectra(data$bd, geoms = c("point", "line"), plot_max = FALSE)[[1]]
 # color each segment by respective wavelength
-plot_spectra(spec_data = data$bd, col_pal = "wavelength", geoms = c("point", "line"), plot_max = F)[[1]]
+plot_spectra(spec_data = data$bd, col_pal = "wavelength", geoms = c("point", "line"), plot_max = FALSE)[[1]]
 # add shade fill according to max wavelength
 plot_spectra(spec_data = data$bd, col_pal = "wavelength_max", shade_type = "ex")[[1]]
 plot_spectra(spec_data = data$bd, col_pal = "wavelength_max", shade_type = c("ex", "em"))[[1]]
@@ -68,5 +68,5 @@ plot_spectra(data$bd, col_pal = c("hotpink", "firebrick", "forestgreen", "blue")
 # plot all local maxima as legend
 plot_spectra(data$bd, col_pal = "wavelength_localmax")[[1]]
 # same color for ex and em
-plot_spectra(data$bd, col_pal = "hue", col_em_ex = F)[[1]]
+plot_spectra(data$bd, col_pal = "hue", col_em_ex = FALSE)[[1]]
 }

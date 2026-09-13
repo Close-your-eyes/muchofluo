@@ -1,7 +1,7 @@
 Package: muchofluo
 Type: Package
 Title: Database of spectral data of fluorochromes
-Version: 0.1.1
+Version: 0.1.3
 Authors@R: 
     person(given = "Christopher Mark",
            family = "Skopnik",
@@ -12,18 +12,21 @@ Description: Simple table with emission and excitation spectra in 1 nm steps, ta
 License: CC0
 Encoding: UTF-8
 LazyData: true
+Depends:
+    R (>= 4.1.0)
 Imports:
+    dplyr,
     purrr,
     rlang,
-    stringr,
-    vroom,
-    stringdist,
-    ggplot2,
-    dplyr,
     tidyr,
-    pracma,
-    ggnewscale
+    vroom
 Suggests:
+    brathering,
     colrr,
-    brathering
-Config/roxygen2/version: 8.0.0
+    ggnewscale,
+    ggplot2,
+    pak,
+    pracma,
+    stringdist,
+    stringr
+Config/roxygen2/version: 8.1.0

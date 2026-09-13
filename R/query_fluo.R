@@ -23,6 +23,8 @@ query_fluo <- function(query,
                        match_cutoff = 0.5,
                        ref = system.file("extdata", "fluo_lookup.tsv", package = "muchofluo")) {
 
+  .ensure_package("stringr")
+
   # oversensitive matching, but anayway. e.g.: pure
   multimatch <- rlang::arg_match(multimatch)
 
@@ -66,6 +68,7 @@ query_fluo <- function(query,
     if (length(unique(matches)) > 1 && multimatch == "all") {
       return(unique(matches))
     } else if ((length(unique(matches)) > 1 && multimatch == "best") || length(unique(matches)) == 1) {
+      .ensure_package("stringdist")
       res <- stringdist::stringdist(proc_query, ref$syn) #utils::adist(proc_query, ref$syn)[1,]
       resrel <- res/pmax(nchar(proc_query), nchar(ref$syn))
       inds <- which(resrel < match_cutoff)
@@ -107,5 +110,4 @@ match_subseq_scan <- function(query, refs) {
   }
   return(vapply(refs, single_check, logical(1), q = query))
 }
-
 

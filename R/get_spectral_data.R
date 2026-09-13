@@ -13,11 +13,7 @@ get_spectral_data <- function(fluos,
                               spectra_df = vroom::vroom(system.file("extdata", "spectra.tsv.gz", package = "muchofluo"), show_col_types = F, progress = F),
                               maxima_df = vroom::vroom(system.file("extdata", "em_ex_maxima.tsv", package = "muchofluo"), show_col_types = F, progress = F)) {
 
-  if (!requireNamespace("brathering", quietly = TRUE)) {
-    stop("The 'brathering' package is required. Install it with:\n",
-         "pak::pak('close-your-eyes/brathering')",
-         call. = FALSE)
-  }
+  .ensure_package("brathering")
 
   # no error catching
 

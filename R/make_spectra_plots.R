@@ -26,16 +26,7 @@ make_spectra_plots <- function(spectra_df = system.file("extdata", "spectra.tsv.
                                width = 5,
                                height = 3.5) {
 
-  if (!requireNamespace("colrr", quietly = TRUE)) {
-    stop("The 'colrr' package is required. Install it with:\n",
-         "pak::pak('close-your-eyes/colrr')",
-         call. = FALSE)
-  }
-  if (!requireNamespace("brathering", quietly = TRUE)) {
-    stop("The 'brathering' package is required. Install it with:\n",
-         "pak::pak('close-your-eyes/brathering')",
-         call. = FALSE)
-  }
+  .ensure_packages(c("colrr", "brathering", "ggplot2"))
 
   dir.create(path = path, recursive = T, showWarnings = F)
   if (!dir.exists(path)) {

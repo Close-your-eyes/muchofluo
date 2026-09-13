@@ -22,6 +22,8 @@ integrate_em_spectrum <- function(data,
                                   min = NULL,
                                   max = NULL) {
 
+  .ensure_package("pracma")
+
   if (!is.data.frame(data)) {
     if (is.list(data)) {
       data <- data[[1]]

@@ -6,7 +6,7 @@
 #' @param col_pal how to color spectra; (i) wavelength_max, (ii) wavelength_localmax,
 #' (iii) wavelength, (iv) palette name from colrr::col_pal, (v) color vector
 #' @param col_em_ex color excitation and emission of one fluorochrome differently
-#' (T) or both according max(em) (F)
+#' (TRUE) or both according max(em) (FALSE)
 #' @param type what to plot em and/or ex
 #' @param shade_type what to shade: none, ex and/or em
 #' @param shade_type_args args to geom_ribbon
@@ -25,11 +25,11 @@
 #' # points, no lines
 #' plot_spectra(data$bd, geoms = "point")[[1]]
 #' # omit vertical max lines
-#' plot_spectra(data$bd, geoms = "point", plot_max = F)[[1]]
+#' plot_spectra(data$bd, geoms = "point", plot_max = FALSE)[[1]]
 #' # points and lines
-#' plot_spectra(data$bd, geoms = c("point", "line"), plot_max = F)[[1]]
+#' plot_spectra(data$bd, geoms = c("point", "line"), plot_max = FALSE)[[1]]
 #' # color each segment by respective wavelength
-#' plot_spectra(spec_data = data$bd, col_pal = "wavelength", geoms = c("point", "line"), plot_max = F)[[1]]
+#' plot_spectra(spec_data = data$bd, col_pal = "wavelength", geoms = c("point", "line"), plot_max = FALSE)[[1]]
 #' # add shade fill according to max wavelength
 #' plot_spectra(spec_data = data$bd, col_pal = "wavelength_max", shade_type = "ex")[[1]]
 #' plot_spectra(spec_data = data$bd, col_pal = "wavelength_max", shade_type = c("ex", "em"))[[1]]
@@ -42,28 +42,24 @@
 #' # plot all local maxima as legend
 #' plot_spectra(data$bd, col_pal = "wavelength_localmax")[[1]]
 #' # same color for ex and em
-#' plot_spectra(data$bd, col_pal = "hue", col_em_ex = F)[[1]]
+#' plot_spectra(data$bd, col_pal = "hue", col_em_ex = FALSE)[[1]]
 plot_spectra <- function(spec_data,
                          type = c("em", "ex"),
                          col_pal = "wavelength_max",
-                         col_em_ex = T,
+                         col_em_ex = TRUE,
                          shade_type = c("none"),
-                         shade_type_args = list(alpha = 0.3, show.legend = F),
+                         shade_type_args = list(alpha = 0.3, show.legend = FALSE),
                          geoms = "line",
-                         plot_max = T,
+                         plot_max = TRUE,
                          theme = colrr::theme_material(text_fun = ggplot2::element_text,
                                                        bg_color = "grey40")
 ) {
 
-  if (!requireNamespace("colrr", quietly = TRUE)) {
-    stop("The 'colrr' package is required. Install it with:\n",
-         "pak::pak('close-your-eyes/colrr')",
-         call. = FALSE)
-  }
+  .ensure_packages(c("colrr", "ggplot2"))
 
-  type <- rlang::arg_match(type, multiple = T)
-  geoms <- rlang::arg_match(geoms, values = c("line", "point"), multiple = T)
-  shade_type <- rlang::arg_match(shade_type, values = c("none", "ex", "em"), multiple = T)
+  type <- rlang::arg_match(type, multiple = TRUE)
+  geoms <- rlang::arg_match(geoms, values = c("line", "point"), multiple = TRUE)
+  shade_type <- rlang::arg_match(shade_type, values = c("none", "ex", "em"), multiple = TRUE)
 
   if (is.data.frame(spec_data)) {
     spec_data <- list(spec_data)
@@ -84,7 +80,7 @@ plot_spectra <- function(spec_data,
     if (col_pal[1] == "wavelength_max") {
       max <- data_max |>
         dplyr::filter(col_em_ex | type == "em") |>
-        dplyr::slice_max(norm_intensity, with_ties = F, by = !!rlang::sym(col_aes))
+        dplyr::slice_max(norm_intensity, with_ties = FALSE, by = !!rlang::sym(col_aes))
       palette <- stats::setNames(colrr::wl_to_hex(max[["nm"]]), max[[col_aes]])
     } else if (col_pal[1] == "wavelength") {
       palette <- colrr::wl_to_hex(unique(data[["nm"]]))
@@ -145,7 +141,7 @@ plot_spectra <- function(spec_data,
                                 yend = norm_intensity,
                                 linetype = type,
                                 color = !!rlang::sym(col_aes)),
-                              show.legend = F)
+                              show.legend = FALSE)
     }
 
 
@@ -153,7 +149,7 @@ plot_spectra <- function(spec_data,
       if (col_pal[1] == "wavelength") {
         p <- p + ggplot2::geom_line(mapping = ggplot2::aes(group = fluorochrome_type,
                                                            color = !!rlang::sym(col_aes)),
-                                    show.legend = F)
+                                    show.legend = FALSE)
       } else {
         p <- p + ggplot2::geom_line(mapping = ggplot2::aes(linetype = type,
                                                            color = !!rlang::sym(col_aes)))
@@ -175,7 +171,8 @@ plot_spectra <- function(spec_data,
       shade_type <- intersect(shade_type, type)
       if (length(intersect(c("ex", "em"), shade_type))) {
         if (col_pal[1] == "wavelength") {
-          for (i in unique(data[which(data$type %in% shade_type), "fluorochrome_type",drop = T])) {
+          .ensure_package("ggnewscale")
+          for (i in unique(data[which(data$type %in% shade_type), "fluorochrome_type",drop = TRUE])) {
 
             palette <- colrr::wl_to_hex(unique(dplyr::filter(data, fluorochrome_type == i) |> dplyr::pull(nm)))
             p <- p + do.call(ggplot2::geom_ribbon,
@@ -190,7 +187,7 @@ plot_spectra <- function(spec_data,
 
         } else {
 
-          for (i in unique(data[which(data$type %in% shade_type), "fluorochrome_type",drop = T])) {
+          for (i in unique(data[which(data$type %in% shade_type), "fluorochrome_type",drop = TRUE])) {
             p <- p + do.call(ggplot2::geom_ribbon,
                              args = c(shade_type_args,
                                       list(data = dplyr::filter(data, fluorochrome_type %in% i),
@@ -208,4 +205,3 @@ plot_spectra <- function(spec_data,
   })
   return(plots)
 }
-

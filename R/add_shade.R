@@ -26,6 +26,8 @@ add_shade2 <- function(fluo = NULL,
                        fun = ggplot2::geom_ribbon,
                        args = list(alpha = 0.3, show.legend = F)) {
 
+  .ensure_package("ggplot2")
+
   type <- rlang::arg_match(type, c("em", "ex"))
   do.call(fun, args = c(args,
                         list(data = ~dplyr::filter(.x, type == !!type) |>
@@ -86,6 +88,8 @@ add_shade <- function(obj,
                       fill = "white",
                       alpha = 0.3,
                       annotate_pct = F) {
+
+  .ensure_package("ggplot2")
 
   type <- rlang::arg_match(type, c("em", "ex"))
 

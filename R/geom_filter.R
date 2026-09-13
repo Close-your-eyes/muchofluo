@@ -18,6 +18,8 @@ geom_filter <- function(min = NULL,
                        fill = "grey90",
                        alpha = 0.2) {
 
+  .ensure_package("ggplot2")
+
   # If range like "530/30" is provided
   if (!is.null(range)) {
     parts <- strsplit(range, "/")[[1]]
